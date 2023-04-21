@@ -67,6 +67,7 @@ class ChessboardView(context: Context, attrs: AttributeSet?, private val chessMa
                 val piece = chessboard[y][x]
                 val imageResId = getPieceImageResource(piece)
                 if (imageResId != 0) {
+                    //If this method is too slow we can import a proper library for handling images
                     val bitmap = BitmapFactory.decodeResource(resources, imageResId)
                     val xOffset = (squareSize - bitmap.width) / 2
                     val yOffset = (squareSize - bitmap.height) / 2
