@@ -1,24 +1,105 @@
 package com.poly.mobilenobles
 
+import android.util.Log
+
+
 class ChessMainLoop {
     val chessboard: Array<Array<Piece>> = initializeChessboard()
+    var isWhiteToMove = true
+
     enum class Piece(val symbol: String) {
         EMPTY(" "),
-        WHITE_PAWN("P"), WHITE_ROOK("R"), WHITE_KNIGHT("N"), WHITE_BISHOP("B"), WHITE_QUEEN("Q"), WHITE_KING("K"),
-        BLACK_PAWN("p"), BLACK_ROOK("r"), BLACK_KNIGHT("n"), BLACK_BISHOP("b"), BLACK_QUEEN("q"), BLACK_KING("k")
+        WHITE_PAWN("P"), WHITE_ROOK("R"), WHITE_KNIGHT("N"), WHITE_BISHOP("B"), WHITE_QUEEN("Q"), WHITE_KING(
+            "K"
+        ),
+        BLACK_PAWN("p"), BLACK_ROOK("r"), BLACK_KNIGHT("n"), BLACK_BISHOP("b"), BLACK_QUEEN("q"), BLACK_KING(
+            "k"
+        )
     }
 
 
     fun initializeChessboard(): Array<Array<Piece>> {
         return arrayOf(
-            arrayOf(Piece.BLACK_ROOK, Piece.BLACK_KNIGHT, Piece.BLACK_BISHOP, Piece.BLACK_QUEEN, Piece.BLACK_KING, Piece.BLACK_BISHOP, Piece.BLACK_KNIGHT, Piece.BLACK_ROOK),
-            arrayOf(Piece.BLACK_PAWN, Piece.BLACK_PAWN, Piece.BLACK_PAWN, Piece.BLACK_PAWN, Piece.BLACK_PAWN, Piece.BLACK_PAWN, Piece.BLACK_PAWN, Piece.BLACK_PAWN),
-            arrayOf(Piece.EMPTY, Piece.EMPTY, Piece.EMPTY, Piece.EMPTY, Piece.EMPTY, Piece.EMPTY, Piece.EMPTY, Piece.EMPTY),
-            arrayOf(Piece.EMPTY, Piece.EMPTY, Piece.EMPTY, Piece.EMPTY, Piece.EMPTY, Piece.EMPTY, Piece.EMPTY, Piece.EMPTY),
-            arrayOf(Piece.EMPTY, Piece.EMPTY, Piece.EMPTY, Piece.EMPTY, Piece.EMPTY, Piece.EMPTY, Piece.EMPTY, Piece.EMPTY),
-            arrayOf(Piece.EMPTY, Piece.EMPTY, Piece.EMPTY, Piece.EMPTY, Piece.EMPTY, Piece.EMPTY, Piece.EMPTY, Piece.EMPTY),
-            arrayOf(Piece.WHITE_PAWN, Piece.WHITE_PAWN, Piece.WHITE_PAWN, Piece.WHITE_PAWN, Piece.WHITE_PAWN, Piece.WHITE_PAWN, Piece.WHITE_PAWN, Piece.WHITE_PAWN),
-            arrayOf(Piece.WHITE_ROOK, Piece.WHITE_KNIGHT, Piece.WHITE_BISHOP, Piece.WHITE_QUEEN, Piece.WHITE_KING, Piece.WHITE_BISHOP, Piece.WHITE_KNIGHT, Piece.WHITE_ROOK)
+            arrayOf(
+                Piece.BLACK_ROOK,
+                Piece.BLACK_KNIGHT,
+                Piece.BLACK_BISHOP,
+                Piece.BLACK_QUEEN,
+                Piece.BLACK_KING,
+                Piece.BLACK_BISHOP,
+                Piece.BLACK_KNIGHT,
+                Piece.BLACK_ROOK
+            ),
+            arrayOf(
+                Piece.BLACK_PAWN,
+                Piece.BLACK_PAWN,
+                Piece.BLACK_PAWN,
+                Piece.BLACK_PAWN,
+                Piece.BLACK_PAWN,
+                Piece.BLACK_PAWN,
+                Piece.BLACK_PAWN,
+                Piece.BLACK_PAWN
+            ),
+            arrayOf(
+                Piece.EMPTY,
+                Piece.EMPTY,
+                Piece.EMPTY,
+                Piece.EMPTY,
+                Piece.EMPTY,
+                Piece.EMPTY,
+                Piece.EMPTY,
+                Piece.EMPTY
+            ),
+            arrayOf(
+                Piece.EMPTY,
+                Piece.EMPTY,
+                Piece.EMPTY,
+                Piece.EMPTY,
+                Piece.EMPTY,
+                Piece.EMPTY,
+                Piece.EMPTY,
+                Piece.EMPTY
+            ),
+            arrayOf(
+                Piece.EMPTY,
+                Piece.EMPTY,
+                Piece.EMPTY,
+                Piece.EMPTY,
+                Piece.EMPTY,
+                Piece.EMPTY,
+                Piece.EMPTY,
+                Piece.EMPTY
+            ),
+            arrayOf(
+                Piece.EMPTY,
+                Piece.EMPTY,
+                Piece.EMPTY,
+                Piece.EMPTY,
+                Piece.EMPTY,
+                Piece.EMPTY,
+                Piece.EMPTY,
+                Piece.EMPTY
+            ),
+            arrayOf(
+                Piece.WHITE_PAWN,
+                Piece.WHITE_PAWN,
+                Piece.WHITE_PAWN,
+                Piece.WHITE_PAWN,
+                Piece.WHITE_PAWN,
+                Piece.WHITE_PAWN,
+                Piece.WHITE_PAWN,
+                Piece.WHITE_PAWN
+            ),
+            arrayOf(
+                Piece.WHITE_ROOK,
+                Piece.WHITE_KNIGHT,
+                Piece.WHITE_BISHOP,
+                Piece.WHITE_QUEEN,
+                Piece.WHITE_KING,
+                Piece.WHITE_BISHOP,
+                Piece.WHITE_KNIGHT,
+                Piece.WHITE_ROOK
+            )
         )
     }
 
@@ -88,7 +169,9 @@ class ChessMainLoop {
 
         for (dirX in directions) {
             for (dirY in directions) {
-                for (newPos in generateSequence(Pair(x + dirX, y + dirY), { Pair(it.first + dirX, it.second + dirY) })
+                for (newPos in generateSequence(
+                    Pair(x + dirX, y + dirY),
+                    { Pair(it.first + dirX, it.second + dirY) })
                     .takeWhile { (newX, newY) -> isInBounds(newX, newY) }) {
                     moves.add(Move(x, y, newPos.first, newPos.second))
                 }
@@ -116,9 +199,10 @@ class ChessMainLoop {
 
         return moves
     }
-    fun getPawnMoves(x: Int, y: Int, isWhite: Boolean): List<Move> {
+
+    fun getPawnMoves(x: Int, y: Int): List<Move> {
         val moves = mutableListOf<Move>()
-        val direction = if (isWhite) 1 else -1
+        val direction = if (isWhiteToMove) -1 else 1
 
         // Standard one square forward move
         val forwardY = y + direction
@@ -127,7 +211,7 @@ class ChessMainLoop {
         }
 
         // Double square forward move from the initial position
-        if ((isWhite && y == 1) || (!isWhite && y == 6)) {
+        if ((!isWhiteToMove && y == 1) || (isWhiteToMove && y == 6)) {
             val doubleForwardY = y + 2 * direction
             if (isInBounds(x, doubleForwardY)) {
                 moves.add(Move(x, y, x, doubleForwardY))
@@ -146,6 +230,11 @@ class ChessMainLoop {
         return moves
     }
 
+
+    fun switchTurns() {
+        isWhiteToMove = !isWhiteToMove
+    }
+
     fun isWhitePiece(piece: Piece): Boolean {
         return piece.name.startsWith('W')
     }
@@ -154,7 +243,12 @@ class ChessMainLoop {
         return piece.name.startsWith('B')
     }
 
-    fun isSquareOccupiedByColor(board: Array<Array<Piece>>, x: Int, y: Int, isWhite: Boolean): Boolean {
+    fun isSquareOccupiedByColor(
+        board: Array<Array<Piece>>,
+        x: Int,
+        y: Int,
+        isWhite: Boolean
+    ): Boolean {
         val piece = board[y][x]
         return if (isWhite) isWhitePiece(piece) else isBlackPiece(piece)
     }
@@ -167,7 +261,7 @@ class ChessMainLoop {
                 val piece = board[y][x]
                 if ((isWhiteToMove && isWhitePiece(piece)) || (!isWhiteToMove && isBlackPiece(piece))) {
                     val possibleMoves = when (piece) {
-                        Piece.WHITE_PAWN, Piece.BLACK_PAWN -> getPawnMoves(x, y, isWhiteToMove)
+                        Piece.WHITE_PAWN, Piece.BLACK_PAWN -> getPawnMoves(x, y,)
                         Piece.WHITE_KNIGHT, Piece.BLACK_KNIGHT -> getKnightMoves(x, y)
                         Piece.WHITE_BISHOP, Piece.BLACK_BISHOP -> getBishopMoves(x, y)
                         Piece.WHITE_ROOK, Piece.BLACK_ROOK -> getRookMoves(x, y)
@@ -181,11 +275,12 @@ class ChessMainLoop {
                         val destY = move.endY
                         val destinationPiece = board[destY][destX]
 
-                        // Filter out moves that would capture a piece of the same color
-                        if (!isSquareOccupiedByColor(board, destX, destY, isWhiteToMove)) {
+                        if (!isSquareOccupiedByColor(board, destX, destY, isWhiteToMove) || isSquareOccupiedByColor(board, destX, destY, !isWhiteToMove)) {
+                            Log.d("generateLegalMoves", "Adding legal move: $move")
                             //Other rules here
                             legalMoves.add(move)
                         }
+
                     }
                 }
             }
@@ -200,6 +295,9 @@ class ChessMainLoop {
 
     fun makeMove(board: Array<Array<Piece>>, move: Move, isWhiteToMove: Boolean): Boolean {
         val legalMoves = generateLegalMoves(board, isWhiteToMove)
+
+        Log.d("makeMove", "Legal moves: $legalMoves")
+
         if (isMoveLegal(move, legalMoves)) {
             val startX = move.startX
             val startY = move.startY
@@ -217,32 +315,8 @@ class ChessMainLoop {
         return false // Move was not legal
     }
 
-    fun main() {
-        val chessboard = initializeChessboard()
-        var isWhiteToMove = true
-
-        //TODO: This whole thing needs to be changed
-        while (true) {
-            println(chessboardToString(chessboard))
-            print("Enter move (startX startY endX endY) for ${if (isWhiteToMove) "White" else "Black"}: ")
-            val input = readLine()
-            if (input != null) {
-                val moveValues = input.split(" ").mapNotNull { it.toIntOrNull() }
-                if (moveValues.size == 4) {
-                    val move = Move(moveValues[0], moveValues[1], moveValues[2], moveValues[3])
-                    val moveSuccessful = makeMove(chessboard, move, isWhiteToMove)
-                    if (moveSuccessful) {
-                        isWhiteToMove = !isWhiteToMove
-                    } else {
-                        println("Invalid move. Please try again.")
-                    }
-                } else {
-                    println("Invalid input. Please enter four integers separated by spaces.")
-                }
-            } else {
-                println("Invalid input. Please try again.")
-            }
-        }
+    fun makeMoveOnCurrentBoard(move: Move, isWhiteToMove: Boolean): Boolean {
+        return makeMove(chessboard, move, isWhiteToMove)
     }
 }
 
