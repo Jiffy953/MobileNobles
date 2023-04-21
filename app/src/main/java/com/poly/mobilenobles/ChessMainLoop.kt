@@ -183,7 +183,7 @@ class ChessMainLoop {
 
                         // Filter out moves that would capture a piece of the same color
                         if (!isSquareOccupiedByColor(board, destX, destY, isWhiteToMove)) {
-                            // You can add additional rules here, like checking for checks, captures, etc.
+                            //Other rules here
                             legalMoves.add(move)
                         }
                     }
@@ -210,7 +210,7 @@ class ChessMainLoop {
             board[endY][endX] = board[startY][startX]
             board[startY][startX] = Piece.EMPTY
 
-            // Add any additional rules here, like handling castling, en passant, or pawn promotion.
+            // TODO: Castling, En passant, Pawn promotion, King in check
 
             return true // Move was successful
         }
@@ -221,6 +221,7 @@ class ChessMainLoop {
         val chessboard = initializeChessboard()
         var isWhiteToMove = true
 
+        //TODO: This whole thing needs to be changed
         while (true) {
             println(chessboardToString(chessboard))
             print("Enter move (startX startY endX endY) for ${if (isWhiteToMove) "White" else "Black"}: ")

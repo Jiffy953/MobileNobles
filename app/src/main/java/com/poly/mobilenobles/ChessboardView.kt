@@ -17,6 +17,8 @@ class ChessboardView(context: Context, attrs: AttributeSet?, private val chessMa
         textAlign = Paint.Align.CENTER
     }
 
+
+    //TODO Fix these guys here, dont want copies
     fun isWhitePiece(piece: ChessMainLoop.Piece): Boolean {
         return piece.name.startsWith('W')
     }
