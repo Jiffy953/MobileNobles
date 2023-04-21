@@ -1,14 +1,13 @@
 package com.poly.mobilenobles
 
+import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
-import android.graphics.RectF
+import android.graphics.*
 import android.util.AttributeSet
 import android.view.View
 
-class ChessboardView(context: Context, attrs: AttributeSet?, private val chessMainLoop: ChessMainLoop) : View(context, attrs) {    private val boardPaint = Paint().apply {
+class ChessboardView(context: Context, attrs: AttributeSet?, private val chessMainLoop: ChessMainLoop) : View(context, attrs) {
+    private val boardPaint = Paint().apply {
         style = Paint.Style.FILL
 
     }
@@ -27,8 +26,28 @@ class ChessboardView(context: Context, attrs: AttributeSet?, private val chessMa
         return piece.name.startsWith('B')
     }
 
+    private fun getPieceImageResource(piece: ChessMainLoop.Piece): Int {
+        return when (piece) {
+            ChessMainLoop.Piece.BLACK_PAWN -> R.drawable.pdt
+            ChessMainLoop.Piece.BLACK_ROOK -> R.drawable.rdt
+            ChessMainLoop.Piece.BLACK_BISHOP -> R.drawable.bdt
+            ChessMainLoop.Piece.BLACK_KNIGHT -> R.drawable.ndt
+            ChessMainLoop.Piece.BLACK_KING -> R.drawable.kdt
+            ChessMainLoop.Piece.BLACK_QUEEN -> R.drawable.qdt
 
 
+            ChessMainLoop.Piece.WHITE_PAWN -> R.drawable.plt
+            ChessMainLoop.Piece.WHITE_ROOK -> R.drawable.rlt
+            ChessMainLoop.Piece.WHITE_BISHOP -> R.drawable.blt
+            ChessMainLoop.Piece.WHITE_KNIGHT -> R.drawable.nlt
+            ChessMainLoop.Piece.WHITE_KING -> R.drawable.klt
+            ChessMainLoop.Piece.WHITE_QUEEN -> R.drawable.qlt
+            else -> 0 // For EMPTY or any other invalid piece
+        }
+    }
+
+
+    @SuppressLint("DrawAllocation")
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         val chessboard = chessMainLoop.chessboard
@@ -46,14 +65,15 @@ class ChessboardView(context: Context, attrs: AttributeSet?, private val chessMa
 
                 // Draw the pieces
                 val piece = chessboard[y][x]
-                if (piece != ChessMainLoop.Piece.EMPTY) {
-                    piecePaint.color = if (isWhitePiece(piece)) Color.BLUE else Color.RED
-                    val cx = left + squareSize / 2
-                    val cy = top + squareSize / 2 - (piecePaint.ascent() + piecePaint.descent()) / 2
-                    canvas.drawText(piece.symbol, cx, cy, piecePaint)
-
+                val imageResId = getPieceImageResource(piece)
+                if (imageResId != 0) {
+                    val bitmap = BitmapFactory.decodeResource(resources, imageResId)
+                    val xOffset = (squareSize - bitmap.width) / 2
+                    val yOffset = (squareSize - bitmap.height) / 2
+                    canvas.drawBitmap(bitmap, left + xOffset, top + yOffset, null)
                 }
             }
         }
     }
 }
+
