@@ -10,6 +10,7 @@ import com.poly.mobilenobles.ChessMainLoop.Move
 import android.util.Log
 
 
+
 class ChessboardView(context: Context, attrs: AttributeSet?, private val chessMainLoop: ChessMainLoop) : View(context, attrs) {
     private val boardPaint = Paint().apply {
         style = Paint.Style.FILL
@@ -105,6 +106,10 @@ class ChessboardView(context: Context, attrs: AttributeSet?, private val chessMa
                         draggingPieceStartY = boardY
                         draggingPieceX = x
                         draggingPieceY = y
+
+                        // Added log for the selected piece
+                        Log.d("onTouchEvent", "Selected piece: $draggingPiece at ($draggingPieceStartX, $draggingPieceStartY)")
+
                         invalidate()
                     } else {
                         draggingPiece = null
@@ -128,7 +133,8 @@ class ChessboardView(context: Context, attrs: AttributeSet?, private val chessMa
                         val move = Move(draggingPieceStartX, draggingPieceStartY, boardX, boardY)
                         val isWhiteToMove = chessMainLoop.isWhiteToMove
 
-                        Log.d("onTouchEvent", "Trying to make a move: $move")
+                        // Added log for the attempted move
+                        Log.d("onTouchEvent", "Attempting move: $move")
 
                         // Replace the call to makeMove() with a call to chessMainLoop.makeMoveOnCurrentBoard()
                         val moveMade = chessMainLoop.makeMoveOnCurrentBoard(move, isWhiteToMove)
@@ -151,6 +157,7 @@ class ChessboardView(context: Context, attrs: AttributeSet?, private val chessMa
         }
         return true
     }
+
 
 
     @SuppressLint("DrawAllocation")
