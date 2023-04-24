@@ -30,6 +30,11 @@ class ChessboardView(context: Context, attrs: AttributeSet?, private val chessMa
         return piece.name.startsWith('B')
     }
 
+    fun whichTurnGraphic(){
+
+
+    }
+
     private fun getPieceImageResource(piece: ChessMainLoop.Piece): Int {
         return when (piece) {
             ChessMainLoop.Piece.BLACK_PAWN -> R.drawable.pdt
