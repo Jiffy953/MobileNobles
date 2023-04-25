@@ -1,0 +1,43 @@
+@startuml
+package com.poly.mobilenobles{
+class ChessMainLoop {
+    - chessboard: Array<Array<Piece>>
+    - isWhiteToMove: Boolean
+
+    + initializeChessboard(): Array<Array<Piece>>
+    + isInBounds(x: Int, y: Int): Boolean
+    + getKingMoves(x: Int, y: Int): List<Move>
+    + getRookMoves(board: Array<Array<Piece>>, x: Int, y: Int): List<Move>
+    + getBishopMoves(board: Array<Array<Piece>>, x: Int, y: Int): List<Move>
+    + getQueenMoves(board: Array<Array<Piece>>, x: Int, y: Int): List<Move>
+    + getKnightMoves(board: Array<Array<Piece>>, x: Int, y: Int, isWhite: Boolean): List<Move>
+    + getPawnMoves(board: Array<Array<Piece>>, x: Int, y: Int, isWhite: Boolean): List<Move>
+    + findKing(board: Array<Array<Piece>>, isWhite: Boolean): Pair<Int, Int>?
+    + isPositionAttacked(board: Array<Array<Piece>>, x: Int, y: Int, isWhite: Boolean): Boolean
+    + switchTurns(): Unit
+    + isWhitePiece(piece: Piece): Boolean
+    + isBlackPiece(piece: Piece): Boolean
+    + isSquareOccupiedByColor(board: Array<Array<Piece>>, x: Int, y: Int, isWhite: Boolean): Boolean
+    + generateAttackingMoves(board: Array<Array<Piece>>, isWhiteToMove: Boolean): List<Move>
+    + generateLegalMovesForCheck(board: Array<Array<Piece>>, isWhiteToMove: Boolean): List<Move>
+    + isCheckmate(board: Array<Array<Piece>>, isWhiteToMove: Boolean): Boolean
+    + isMoveLegal(move: Move, legalMoves: List<Move>): Boolean
+    + makeMove(board: Array<Array<Piece>>, move: Move, isWhiteToMove: Boolean, checkKingSafety: Boolean = true): Boolean
+}
+
+class Move {
+    - startX: Int
+    - startY: Int
+    - endX: Int
+    - endY: Int
+}
+
+class Piece {
+    - symbol: String
+}
+
+ChessMainLoop -- Move
+ChessMainLoop -- Piece
+}
+@enduml
+

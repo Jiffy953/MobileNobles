@@ -2,7 +2,6 @@ package com.poly.mobilenobles
 
 import android.util.Log
 
-
 class ChessMainLoop {
     val chessboard: Array<Array<Piece>> = initializeChessboard()
     var isWhiteToMove = true
@@ -16,7 +15,6 @@ class ChessMainLoop {
             "k"
         )
     }
-
 
     fun initializeChessboard(): Array<Array<Piece>> {
         return arrayOf(
@@ -128,11 +126,6 @@ class ChessMainLoop {
         return moves
     }
 
-    fun getQueenMoves(board: Array<Array<Piece>>, x: Int, y: Int): List<Move> {
-        return getRookMoves(board, x, y) + getBishopMoves(board, x, y)
-    }
-
-
     fun getRookMoves(board: Array<Array<Piece>>, x: Int, y: Int): List<Move> {
         val moves = mutableListOf<Move>()
         val directions = listOf(-1, 1)
@@ -163,7 +156,6 @@ class ChessMainLoop {
 
         return moves
     }
-
 
     fun getBishopMoves(board: Array<Array<Piece>>, x: Int, y: Int): List<Move> {
         val moves = mutableListOf<Move>()
@@ -199,7 +191,10 @@ class ChessMainLoop {
         return moves
     }
 
-
+    fun getQueenMoves(board: Array<Array<Piece>>, x: Int, y: Int): List<Move> {
+        // Queen's moves are combination of rook and bishop moves
+        return getRookMoves(board, x, y) + getBishopMoves(board, x, y)
+    }
 
     fun getKnightMoves(board: Array<Array<Piece>>, x: Int, y: Int, isWhite: Boolean): List<Move> {
         val moves = mutableListOf<Move>()
@@ -219,9 +214,7 @@ class ChessMainLoop {
         return moves
     }
 
-
-    var lastMove: Move? = null
-    fun getPawnMoves(board: Array<Array<Piece>>, x: Int, y: Int, isWhite: Boolean, lastMove: Move?): List<Move> {
+    fun getPawnMoves(board: Array<Array<Piece>>, x: Int, y: Int, isWhite: Boolean): List<Move> {
         val moves = mutableListOf<Move>()
 
         val direction = if (isWhite) -1 else 1
@@ -231,13 +224,13 @@ class ChessMainLoop {
         if (y + direction in 0..7 && board[y + direction][x] == Piece.EMPTY) {
             moves.add(Move(x, y, x, y + direction))
 
-            // Two squares forward for the pawn's first move
+            // Two squares forward if its the pawn's first move
             if (y == initialRank && board[y + 2 * direction][x] == Piece.EMPTY) {
                 moves.add(Move(x, y, x, y + 2 * direction))
             }
         }
 
-        // Capturing diagonally
+        // Capturing
         val captureOffsets = listOf(-1, 1)
         for (offset in captureOffsets) {
             val newX = x + offset
@@ -249,26 +242,8 @@ class ChessMainLoop {
             }
         }
 
-        // Add en passant capture moves
-        if (isWhite && y == 3 && lastMove != null) {
-            val lastMovePiece = board[lastMove.startY][lastMove.startX]
-            if (lastMovePiece == Piece.BLACK_PAWN && lastMove.startY == 6 && lastMove.endY == 4) {
-                if (lastMove.endX == x - 1 || lastMove.endX == x + 1) {
-                    moves.add(Move(x, y, lastMove.endX, y + direction))
-                }
-            }
-        } else if (!isWhite && y == 4 && lastMove != null) {
-            val lastMovePiece = board[lastMove.startY][lastMove.startX]
-            if (lastMovePiece == Piece.WHITE_PAWN && lastMove.startY == 1 && lastMove.endY == 3) {
-                if (lastMove.endX == x - 1 || lastMove.endX == x + 1) {
-                    moves.add(Move(x, y, lastMove.endX, y + direction))
-                }
-            }
-        }
-
         return moves
     }
-
 
     fun findKing(board: Array<Array<Piece>>, isWhite: Boolean): Pair<Int, Int>? {
         for (y in 0..7) {
@@ -283,7 +258,7 @@ class ChessMainLoop {
     }
 
     fun isPositionAttacked(board: Array<Array<Piece>>, x: Int, y: Int, isWhite: Boolean): Boolean {
-        val oppositeMoves = generateAttackingMoves(board, isWhite, lastMove)
+        val oppositeMoves = generateAttackingMoves(board, isWhite)
         return oppositeMoves.any { move -> move.endX == x && move.endY == y }
     }
 
@@ -310,7 +285,7 @@ class ChessMainLoop {
         return if (isWhite) isWhitePiece(piece) else isBlackPiece(piece)
     }
 
-    fun generateAttackingMoves(board: Array<Array<Piece>>, isWhiteToMove: Boolean, lastMove: Move?): List<Move> {
+    fun generateAttackingMoves(board: Array<Array<Piece>>, isWhiteToMove: Boolean): List<Move> {
         val attackingMoves = mutableListOf<Move>()
 
         for (y in 0..7) {
@@ -319,8 +294,8 @@ class ChessMainLoop {
 
                 if ((isWhiteToMove && isWhitePiece(piece)) || (!isWhiteToMove && isBlackPiece(piece))) {
                     val possibleMoves = when (piece) {
-                        Piece.WHITE_PAWN -> getPawnMoves(board, x, y, true, lastMove)
-                        Piece.BLACK_PAWN -> getPawnMoves(board, x, y, false, lastMove)
+                        Piece.WHITE_PAWN -> getPawnMoves(board, x, y, true)
+                        Piece.BLACK_PAWN -> getPawnMoves(board, x, y, false)
                         Piece.WHITE_KNIGHT -> getKnightMoves(board, x, y, true)
                         Piece.BLACK_KNIGHT -> getKnightMoves(board, x, y, false)
                         Piece.WHITE_BISHOP, Piece.BLACK_BISHOP -> getBishopMoves(board, x, y)
@@ -333,7 +308,6 @@ class ChessMainLoop {
                     for (move in possibleMoves) {
                         val destX = move.endX
                         val destY = move.endY
-                        val destinationPiece = board[destY][destX]
 
                         if (!isSquareOccupiedByColor(board, destX, destY, isWhiteToMove) || isSquareOccupiedByColor(board, destX, destY, !isWhiteToMove)) {
                             attackingMoves.add(move)
@@ -346,8 +320,6 @@ class ChessMainLoop {
         return attackingMoves
     }
 
-
-
     fun generateLegalMovesForCheck(board: Array<Array<Piece>>, isWhiteToMove: Boolean): List<Move> {
         val legalMoves = mutableListOf<Move>()
 
@@ -357,8 +329,8 @@ class ChessMainLoop {
 
                 if ((isWhiteToMove && isWhitePiece(piece)) || (!isWhiteToMove && isBlackPiece(piece))) {
                     val possibleMoves = when (piece) {
-                        Piece.WHITE_PAWN -> getPawnMoves(board, x, y, true, lastMove)
-                        Piece.BLACK_PAWN -> getPawnMoves(board, x, y, false, lastMove)
+                        Piece.WHITE_PAWN -> getPawnMoves(board, x, y, true)
+                        Piece.BLACK_PAWN -> getPawnMoves(board, x, y, false)
                         Piece.WHITE_KNIGHT -> getKnightMoves(board, x, y, true)
                         Piece.BLACK_KNIGHT -> getKnightMoves(board, x, y, false)
                         Piece.WHITE_BISHOP, Piece.BLACK_BISHOP -> getBishopMoves(board, x, y)
@@ -371,7 +343,6 @@ class ChessMainLoop {
                     for (move in possibleMoves) {
                         val destX = move.endX
                         val destY = move.endY
-                        val destinationPiece = board[destY][destX]
 
                         if (!isSquareOccupiedByColor(board, destX, destY, isWhiteToMove) || isSquareOccupiedByColor(board, destX, destY, !isWhiteToMove)) {
                             val tempBoard = board.deepCopy()
@@ -410,7 +381,6 @@ class ChessMainLoop {
         return false
     }
 
-
     fun Array<Array<Piece>>.deepCopy(): Array<Array<Piece>> {
         return Array(this.size) { i ->
             Array(this[i].size) { j ->
@@ -418,7 +388,6 @@ class ChessMainLoop {
             }
         }
     }
-
 
     fun isMoveLegal(move: Move, legalMoves: List<Move>): Boolean {
         return move in legalMoves
@@ -451,12 +420,9 @@ class ChessMainLoop {
         INVALID
     }
 
-
-
     fun makeMoveOnCurrentBoard(move: Move, isWhiteToMove: Boolean): MoveResult {
         val moveSuccessful = makeMove(chessboard, move, isWhiteToMove)
         if (moveSuccessful) {
-            lastMove = move
             if (isCheckmate(chessboard, !isWhiteToMove)) {
                 Log.d("makeMoveOnCurrentBoard", "Checkmate! ${if (isWhiteToMove) "White" else "Black"} wins!")
                 // Add here for any messages after the game is complete

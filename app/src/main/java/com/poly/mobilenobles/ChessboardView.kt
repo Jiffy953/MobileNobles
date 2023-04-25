@@ -17,13 +17,6 @@ import android.media.MediaPlayer
 class ChessboardView(context: Context, attrs: AttributeSet?, private val chessMainLoop: ChessMainLoop) : View(context, attrs) {
     private val boardPaint = Paint().apply {
         style = Paint.Style.FILL
-
-    }
-
-
-    fun whichTurnGraphic(){
-
-
     }
 
     private fun getPieceImageResource(piece: ChessMainLoop.Piece): Int {

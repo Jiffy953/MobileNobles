@@ -1,0 +1,13 @@
+@startuml
+package com.poly.mobilenobles{
+    class MainActivity {
+        - TAG : String
+        - chessMainLoop : ChessMainLoop
+        + onCreate(savedInstanceState: Bundle) : void
+    }
+    note right of MainActivity
+        Inherits from:
+        - AppCompatActivity
+    end note
+}
+@enduml

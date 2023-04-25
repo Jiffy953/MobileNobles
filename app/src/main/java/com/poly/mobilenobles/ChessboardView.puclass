@@ -1,0 +1,50 @@
+@startuml
+package com.poly.mobilenobles {
+    class ChessboardView {
+        - boardPaint: Paint
+        - draggingPiece: ChessMainLoop.Piece?
+        - draggingPieceStartX: Int
+        - draggingPieceStartY: Int
+        - draggingPieceX: Int
+        - draggingPieceY: Int
+
+        + whichTurnGraphic(): Unit
+        + getPieceImageResource(piece: ChessMainLoop.Piece): Int
+        + playMoveSound(): Unit
+        + playCheckmateSound(): Unit
+        + screenToBoard(x: Int, y: Int): Pair<Int, Int>?
+        + boardToScreenX(boardX: Int): Int
+        + boardToScreenY(boardY: Int): Int
+        + onTouchEvent(event: MotionEvent): Boolean
+        + onDraw(canvas: Canvas): Unit
+    }
+}
+
+class MotionEvent
+class Paint
+class Canvas
+
+ChessboardView -- MotionEvent
+ChessboardView -- Paint
+ChessboardView -- Canvas
+
+class ChessMainLoop {
+    - chessboard: Array<Array<Piece>>
+    - isWhiteToMove: Boolean
+}
+
+class Move {
+    - startX: Int
+    - startY: Int
+    - endX: Int
+    - endY: Int
+}
+
+class Piece {
+    - symbol: String
+}
+
+ChessboardView -- ChessMainLoop
+ChessMainLoop -- Move
+ChessMainLoop -- Piece
+@enduml
