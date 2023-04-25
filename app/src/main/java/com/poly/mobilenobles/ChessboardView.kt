@@ -203,17 +203,20 @@ class ChessboardView(context: Context, attrs: AttributeSet?, private val chessMa
             }
         }
         boardPaint.color = Color.BLACK
-        val left = 1*squareSize.toFloat()+xOffset
+        val left = 2*squareSize.toFloat()+xOffset
         val uptop = 1*squareSize.toFloat()
-        val bottomtop = 12*squareSize.toFloat()
-        val bottombottom = bottomtop-squareSize
-        val upBottom = uptop-squareSize
-        val right = left+(squareSize*6)
+        val bottomtop = 11*squareSize.toFloat()
+        //val bottombottom = bottomtop-squareSize
+        //val upBottom = uptop-squareSize
+        //val right = left+(squareSize*6)
         if(!chessMainLoop.isWhiteToMove) {
-            canvas.drawRect(RectF(left, uptop, right, upBottom), boardPaint)
+            val bitmap = BitmapFactory.decodeResource(resources, R.drawable.their_turn)
+            canvas.drawBitmap(bitmap, left, uptop, null)
         }else {
-            canvas.drawRect(RectF(left, bottomtop, right, bottombottom), boardPaint)
+            val bitmap = BitmapFactory.decodeResource(resources, R.drawable.your_turn)
+            canvas.drawBitmap(bitmap, left, bottomtop, null)
         }
+
 
 
         // Draw the dragging piece above the board
