@@ -220,7 +220,8 @@ class ChessMainLoop {
     }
 
 
-    fun getPawnMoves(board: Array<Array<Piece>>, x: Int, y: Int, isWhite: Boolean): List<Move> {
+    var lastMove: Move? = null
+    fun getPawnMoves(board: Array<Array<Piece>>, x: Int, y: Int, isWhite: Boolean, lastMove: Move?): List<Move> {
         val moves = mutableListOf<Move>()
 
         val direction = if (isWhite) -1 else 1
@@ -248,8 +249,26 @@ class ChessMainLoop {
             }
         }
 
+        // Add en passant capture moves
+        if (isWhite && y == 3 && lastMove != null) {
+            val lastMovePiece = board[lastMove.startY][lastMove.startX]
+            if (lastMovePiece == Piece.BLACK_PAWN && lastMove.startY == 6 && lastMove.endY == 4) {
+                if (lastMove.endX == x - 1 || lastMove.endX == x + 1) {
+                    moves.add(Move(x, y, lastMove.endX, y + direction))
+                }
+            }
+        } else if (!isWhite && y == 4 && lastMove != null) {
+            val lastMovePiece = board[lastMove.startY][lastMove.startX]
+            if (lastMovePiece == Piece.WHITE_PAWN && lastMove.startY == 1 && lastMove.endY == 3) {
+                if (lastMove.endX == x - 1 || lastMove.endX == x + 1) {
+                    moves.add(Move(x, y, lastMove.endX, y + direction))
+                }
+            }
+        }
+
         return moves
     }
+
 
     fun findKing(board: Array<Array<Piece>>, isWhite: Boolean): Pair<Int, Int>? {
         for (y in 0..7) {
@@ -264,7 +283,7 @@ class ChessMainLoop {
     }
 
     fun isPositionAttacked(board: Array<Array<Piece>>, x: Int, y: Int, isWhite: Boolean): Boolean {
-        val oppositeMoves = generateAttackingMoves(board, isWhite)
+        val oppositeMoves = generateAttackingMoves(board, isWhite, lastMove)
         return oppositeMoves.any { move -> move.endX == x && move.endY == y }
     }
 
@@ -291,7 +310,7 @@ class ChessMainLoop {
         return if (isWhite) isWhitePiece(piece) else isBlackPiece(piece)
     }
 
-    fun generateAttackingMoves(board: Array<Array<Piece>>, isWhiteToMove: Boolean): List<Move> {
+    fun generateAttackingMoves(board: Array<Array<Piece>>, isWhiteToMove: Boolean, lastMove: Move?): List<Move> {
         val attackingMoves = mutableListOf<Move>()
 
         for (y in 0..7) {
@@ -300,8 +319,8 @@ class ChessMainLoop {
 
                 if ((isWhiteToMove && isWhitePiece(piece)) || (!isWhiteToMove && isBlackPiece(piece))) {
                     val possibleMoves = when (piece) {
-                        Piece.WHITE_PAWN -> getPawnMoves(board, x, y, true)
-                        Piece.BLACK_PAWN -> getPawnMoves(board, x, y, false)
+                        Piece.WHITE_PAWN -> getPawnMoves(board, x, y, true, lastMove)
+                        Piece.BLACK_PAWN -> getPawnMoves(board, x, y, false, lastMove)
                         Piece.WHITE_KNIGHT -> getKnightMoves(board, x, y, true)
                         Piece.BLACK_KNIGHT -> getKnightMoves(board, x, y, false)
                         Piece.WHITE_BISHOP, Piece.BLACK_BISHOP -> getBishopMoves(board, x, y)
@@ -328,6 +347,7 @@ class ChessMainLoop {
     }
 
 
+
     fun generateLegalMovesForCheck(board: Array<Array<Piece>>, isWhiteToMove: Boolean): List<Move> {
         val legalMoves = mutableListOf<Move>()
 
@@ -337,8 +357,8 @@ class ChessMainLoop {
 
                 if ((isWhiteToMove && isWhitePiece(piece)) || (!isWhiteToMove && isBlackPiece(piece))) {
                     val possibleMoves = when (piece) {
-                        Piece.WHITE_PAWN -> getPawnMoves(board, x, y, true)
-                        Piece.BLACK_PAWN -> getPawnMoves(board, x, y, false)
+                        Piece.WHITE_PAWN -> getPawnMoves(board, x, y, true, lastMove)
+                        Piece.BLACK_PAWN -> getPawnMoves(board, x, y, false, lastMove)
                         Piece.WHITE_KNIGHT -> getKnightMoves(board, x, y, true)
                         Piece.BLACK_KNIGHT -> getKnightMoves(board, x, y, false)
                         Piece.WHITE_BISHOP, Piece.BLACK_BISHOP -> getBishopMoves(board, x, y)
@@ -425,18 +445,28 @@ class ChessMainLoop {
         return false // Move was not legal
     }
 
-
-    fun makeMoveOnCurrentBoard(move: Move, isWhiteToMove: Boolean): Boolean {
-        val moveSuccessful = makeMove(chessboard, move, isWhiteToMove)
-        if (moveSuccessful) {
-            if (isCheckmate(chessboard, !isWhiteToMove)) {
-                Log.d("makeMoveOnCurrentBoard", "Checkmate! ${if (isWhiteToMove) "White" else "Black"} wins!")
-                // Add here to for any messages after the game is complete
-            }
-        }
-        return moveSuccessful
+    enum class MoveResult {
+        SUCCESS,
+        CHECKMATE,
+        INVALID
     }
 
 
+
+    fun makeMoveOnCurrentBoard(move: Move, isWhiteToMove: Boolean): MoveResult {
+        val moveSuccessful = makeMove(chessboard, move, isWhiteToMove)
+        if (moveSuccessful) {
+            lastMove = move
+            if (isCheckmate(chessboard, !isWhiteToMove)) {
+                Log.d("makeMoveOnCurrentBoard", "Checkmate! ${if (isWhiteToMove) "White" else "Black"} wins!")
+                // Add here for any messages after the game is complete
+                return MoveResult.CHECKMATE
+            } else {
+                return MoveResult.SUCCESS
+            }
+        } else {
+            return MoveResult.INVALID
+        }
+    }
 }
 
