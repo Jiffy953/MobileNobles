@@ -142,6 +142,7 @@ class ChessboardView(context: Context, attrs: AttributeSet?, private val chessMa
                         if (moveMade) {
                             // Update the game state
                             chessMainLoop.switchTurns()
+                            invalidate()
                         } else {
 
                             Log.d("onTouchEvent", "Invalid move: $move")
@@ -191,6 +192,19 @@ class ChessboardView(context: Context, attrs: AttributeSet?, private val chessMa
                 }
             }
         }
+        boardPaint.color = Color.BLACK
+        val left = 1*squareSize.toFloat()+xOffset
+        val uptop = 1*squareSize.toFloat()
+        val bottomtop = 12*squareSize.toFloat()
+        val bottombottom = bottomtop-squareSize
+        val upBottom = uptop-squareSize
+        val right = left+(squareSize*6)
+        if(!chessMainLoop.isWhiteToMove) {
+            canvas.drawRect(RectF(left, uptop, right, upBottom), boardPaint)
+        }else {
+            canvas.drawRect(RectF(left, bottomtop, right, bottombottom), boardPaint)
+        }
+
 
         // Draw the dragging piece above the board
         if (draggingPiece != null) {
