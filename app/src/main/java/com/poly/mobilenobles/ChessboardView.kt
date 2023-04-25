@@ -9,30 +9,17 @@ import android.view.View
 import com.poly.mobilenobles.ChessMainLoop.Move
 import android.util.Log
 import android.media.MediaPlayer
-import androidx.core.content.ContextCompat
 
 
 
 
+@SuppressLint("ViewConstructor")
 class ChessboardView(context: Context, attrs: AttributeSet?, private val chessMainLoop: ChessMainLoop) : View(context, attrs) {
     private val boardPaint = Paint().apply {
         style = Paint.Style.FILL
 
     }
-    private val piecePaint = Paint().apply {
-        textSize = 60f
-        textAlign = Paint.Align.CENTER
-    }
 
-
-    //TODO Fix these guys here, don't want copies
-    fun isWhitePiece(piece: ChessMainLoop.Piece): Boolean {
-        return piece.name.startsWith('W')
-    }
-
-    fun isBlackPiece(piece: ChessMainLoop.Piece): Boolean {
-        return piece.name.startsWith('B')
-    }
 
     fun whichTurnGraphic(){
 
@@ -65,7 +52,7 @@ class ChessboardView(context: Context, attrs: AttributeSet?, private val chessMa
         mediaPlayer.start()
     }
 
-    fun playCheckmateSound() {
+    private fun playCheckmateSound() {
         val mediaPlayer = MediaPlayer.create(context, R.raw.vic)
         mediaPlayer.setOnCompletionListener { mp -> mp.release() }
         mediaPlayer.start()
