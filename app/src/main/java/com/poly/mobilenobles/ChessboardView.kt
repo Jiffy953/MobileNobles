@@ -204,16 +204,16 @@ class ChessboardView(context: Context, attrs: AttributeSet?, private val chessMa
         }
         boardPaint.color = Color.BLACK
         val left = 2*squareSize.toFloat()+xOffset
-        val uptop = 1*squareSize.toFloat()
+        val uptop = 0*squareSize.toFloat()
         val bottomtop = 11*squareSize.toFloat()
         //val bottombottom = bottomtop-squareSize
         //val upBottom = uptop-squareSize
         //val right = left+(squareSize*6)
         if(!chessMainLoop.isWhiteToMove) {
-            val bitmap = BitmapFactory.decodeResource(resources, R.drawable.their_turn)
+            val bitmap = BitmapFactory.decodeResource(resources, R.drawable.their_turn_now)
             canvas.drawBitmap(bitmap, left, uptop, null)
         }else {
-            val bitmap = BitmapFactory.decodeResource(resources, R.drawable.your_turn)
+            val bitmap = BitmapFactory.decodeResource(resources, R.drawable.your_turn_now)
             canvas.drawBitmap(bitmap, left, bottomtop, null)
         }
 
