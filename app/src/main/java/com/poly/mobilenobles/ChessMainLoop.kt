@@ -425,17 +425,29 @@ class ChessMainLoop {
         return false // Move was not legal
     }
 
+    enum class MoveResult {
+        SUCCESS,
+        CHECKMATE,
+        INVALID
+    }
 
-    fun makeMoveOnCurrentBoard(move: Move, isWhiteToMove: Boolean): Boolean {
+
+
+    fun makeMoveOnCurrentBoard(move: Move, isWhiteToMove: Boolean): MoveResult {
         val moveSuccessful = makeMove(chessboard, move, isWhiteToMove)
         if (moveSuccessful) {
             if (isCheckmate(chessboard, !isWhiteToMove)) {
                 Log.d("makeMoveOnCurrentBoard", "Checkmate! ${if (isWhiteToMove) "White" else "Black"} wins!")
-                // Add here to for any messages after the game is complete
+                // Add here for any messages after the game is complete
+                return MoveResult.CHECKMATE
+            } else {
+                return MoveResult.SUCCESS
             }
+        } else {
+            return MoveResult.INVALID
         }
-        return moveSuccessful
     }
+
 
 
 }

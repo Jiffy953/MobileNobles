@@ -8,6 +8,9 @@ import android.view.MotionEvent
 import android.view.View
 import com.poly.mobilenobles.ChessMainLoop.Move
 import android.util.Log
+import android.media.MediaPlayer
+import androidx.core.content.ContextCompat
+
 
 
 
@@ -55,6 +58,19 @@ class ChessboardView(context: Context, attrs: AttributeSet?, private val chessMa
             else -> 0 // For EMPTY or any other invalid piece
         }
     }
+
+    private fun playMoveSound() {
+        val mediaPlayer = MediaPlayer.create(context, R.raw.moving)
+        mediaPlayer.setOnCompletionListener { mp -> mp.release() }
+        mediaPlayer.start()
+    }
+
+    fun playCheckmateSound() {
+        val mediaPlayer = MediaPlayer.create(context, R.raw.vic)
+        mediaPlayer.setOnCompletionListener { mp -> mp.release() }
+        mediaPlayer.start()
+    }
+
 
     private var draggingPiece: ChessMainLoop.Piece? = null
     private var draggingPieceStartX = 0
@@ -137,18 +153,25 @@ class ChessboardView(context: Context, attrs: AttributeSet?, private val chessMa
                         Log.d("onTouchEvent", "Attempting move: $move")
 
                         // Replace the call to makeMove() with a call to chessMainLoop.makeMoveOnCurrentBoard()
-                        val moveMade = chessMainLoop.makeMoveOnCurrentBoard(move, isWhiteToMove)
-
-                        if (moveMade) {
-                            // Update the game state
-                            chessMainLoop.switchTurns()
-                            invalidate()
-                        } else {
-
-                            Log.d("onTouchEvent", "Invalid move: $move")
-                            // Invalid move, return the piece to its starting position
-                            draggingPieceX = boardToScreenX(draggingPieceStartX)
-                            draggingPieceY = boardToScreenY(draggingPieceStartY)
+                        when (chessMainLoop.makeMoveOnCurrentBoard(move, isWhiteToMove)) {
+                            ChessMainLoop.MoveResult.SUCCESS -> {
+                                // Update the game state
+                                chessMainLoop.switchTurns()
+                                playMoveSound()
+                                invalidate()
+                            }
+                            ChessMainLoop.MoveResult.CHECKMATE -> {
+                                // Handle checkmate result here
+                                chessMainLoop.switchTurns()
+                                playCheckmateSound()
+                                invalidate()
+                            }
+                            ChessMainLoop.MoveResult.INVALID -> {
+                                Log.d("onTouchEvent", "Invalid move: $move")
+                                // Invalid move, return the piece to its starting position
+                                draggingPieceX = boardToScreenX(draggingPieceStartX)
+                                draggingPieceY = boardToScreenY(draggingPieceStartY)
+                            }
                         }
                     }
                     draggingPiece = null
