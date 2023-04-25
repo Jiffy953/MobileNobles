@@ -103,18 +103,6 @@ class ChessMainLoop {
         )
     }
 
-
-    fun chessboardToString(chessboard: Array<Array<Piece>>): String {
-        val stringBuilder = StringBuilder()
-        for (row in chessboard) {
-            for (piece in row) {
-                stringBuilder.append("$piece ")
-            }
-            stringBuilder.append("\n")
-        }
-        return stringBuilder.toString()
-    }
-
     data class Move(val startX: Int, val startY: Int, val endX: Int, val endY: Int)
 
     fun isInBounds(x: Int, y: Int): Boolean {
@@ -263,6 +251,23 @@ class ChessMainLoop {
         return moves
     }
 
+    fun findKing(board: Array<Array<Piece>>, isWhite: Boolean): Pair<Int, Int>? {
+        for (y in 0..7) {
+            for (x in 0..7) {
+                val piece = board[y][x]
+                if ((isWhite && piece == Piece.WHITE_KING) || (!isWhite && piece == Piece.BLACK_KING)) {
+                    return Pair(x, y)
+                }
+            }
+        }
+        return null
+    }
+
+    fun isPositionAttacked(board: Array<Array<Piece>>, x: Int, y: Int, isWhite: Boolean): Boolean {
+        val oppositeMoves = generateAttackingMoves(board, isWhite)
+        return oppositeMoves.any { move -> move.endX == x && move.endY == y }
+    }
+
 
     fun switchTurns() {
         isWhiteToMove = !isWhiteToMove
@@ -286,41 +291,81 @@ class ChessMainLoop {
         return if (isWhite) isWhitePiece(piece) else isBlackPiece(piece)
     }
 
+    fun generateAttackingMoves(board: Array<Array<Piece>>, isWhiteToMove: Boolean): List<Move> {
+        val attackingMoves = mutableListOf<Move>()
 
-    fun generateLegalMoves(
-        board: Array<Array<Piece>>,
-        isWhiteToMove: Boolean,
-        selectedX: Int,
-        selectedY: Int
-    ): List<Move> {
+        for (y in 0..7) {
+            for (x in 0..7) {
+                val piece = board[y][x]
+
+                if ((isWhiteToMove && isWhitePiece(piece)) || (!isWhiteToMove && isBlackPiece(piece))) {
+                    val possibleMoves = when (piece) {
+                        Piece.WHITE_PAWN -> getPawnMoves(board, x, y, true)
+                        Piece.BLACK_PAWN -> getPawnMoves(board, x, y, false)
+                        Piece.WHITE_KNIGHT -> getKnightMoves(board, x, y, true)
+                        Piece.BLACK_KNIGHT -> getKnightMoves(board, x, y, false)
+                        Piece.WHITE_BISHOP, Piece.BLACK_BISHOP -> getBishopMoves(board, x, y)
+                        Piece.WHITE_ROOK, Piece.BLACK_ROOK -> getRookMoves(board, x, y)
+                        Piece.WHITE_QUEEN, Piece.BLACK_QUEEN -> getQueenMoves(board, x, y)
+                        Piece.WHITE_KING, Piece.BLACK_KING -> getKingMoves(x, y)
+                        else -> emptyList()
+                    }
+
+                    for (move in possibleMoves) {
+                        val destX = move.endX
+                        val destY = move.endY
+                        val destinationPiece = board[destY][destX]
+
+                        if (!isSquareOccupiedByColor(board, destX, destY, isWhiteToMove) || isSquareOccupiedByColor(board, destX, destY, !isWhiteToMove)) {
+                            attackingMoves.add(move)
+                        }
+                    }
+                }
+            }
+        }
+
+        return attackingMoves
+    }
+
+
+    fun generateLegalMovesForCheck(board: Array<Array<Piece>>, isWhiteToMove: Boolean): List<Move> {
         val legalMoves = mutableListOf<Move>()
 
         for (y in 0..7) {
             for (x in 0..7) {
                 val piece = board[y][x]
+
                 if ((isWhiteToMove && isWhitePiece(piece)) || (!isWhiteToMove && isBlackPiece(piece))) {
-                    if (x == selectedX && y == selectedY) { // Add this check
-                        val possibleMoves = when (piece) {
-                            Piece.WHITE_PAWN -> getPawnMoves(board, x, y, true)
-                            Piece.BLACK_PAWN -> getPawnMoves(board, x, y, false)
-                            Piece.WHITE_KNIGHT -> getKnightMoves(board, x, y, true)
-                            Piece.BLACK_KNIGHT -> getKnightMoves(board, x, y, false)
-                            Piece.WHITE_BISHOP, Piece.BLACK_BISHOP -> getBishopMoves(board, x, y)
-                            Piece.WHITE_ROOK, Piece.BLACK_ROOK -> getRookMoves(board, x, y)
-                            Piece.WHITE_QUEEN, Piece.BLACK_QUEEN -> getQueenMoves(board, x, y)
-                            Piece.WHITE_KING, Piece.BLACK_KING -> getKingMoves(x, y)
-                            else -> emptyList()
-                        }
+                    val possibleMoves = when (piece) {
+                        Piece.WHITE_PAWN -> getPawnMoves(board, x, y, true)
+                        Piece.BLACK_PAWN -> getPawnMoves(board, x, y, false)
+                        Piece.WHITE_KNIGHT -> getKnightMoves(board, x, y, true)
+                        Piece.BLACK_KNIGHT -> getKnightMoves(board, x, y, false)
+                        Piece.WHITE_BISHOP, Piece.BLACK_BISHOP -> getBishopMoves(board, x, y)
+                        Piece.WHITE_ROOK, Piece.BLACK_ROOK -> getRookMoves(board, x, y)
+                        Piece.WHITE_QUEEN, Piece.BLACK_QUEEN -> getQueenMoves(board, x, y)
+                        Piece.WHITE_KING, Piece.BLACK_KING -> getKingMoves(x, y)
+                        else -> emptyList()
+                    }
 
-                        for (move in possibleMoves) {
-                            val destX = move.endX
-                            val destY = move.endY
-                            val destinationPiece = board[destY][destX]
+                    for (move in possibleMoves) {
+                        val destX = move.endX
+                        val destY = move.endY
+                        val destinationPiece = board[destY][destX]
 
-                            if (!isSquareOccupiedByColor(board, destX, destY, isWhiteToMove) || isSquareOccupiedByColor(board, destX, destY, !isWhiteToMove)) {
-                                Log.d("generateLegalMoves", "Piece: $piece, startX: $x, startY: $y, Adding legal move: $move")
-                                //Other rules here
-                                legalMoves.add(move)
+                        if (!isSquareOccupiedByColor(board, destX, destY, isWhiteToMove) || isSquareOccupiedByColor(board, destX, destY, !isWhiteToMove)) {
+                            val tempBoard = board.deepCopy()
+                            tempBoard[destY][destX] = tempBoard[y][x]
+                            tempBoard[y][x] = Piece.EMPTY
+                            val kingPosition = findKing(tempBoard, isWhiteToMove)
+                            if (kingPosition != null) {
+                                val (kingX, kingY) = kingPosition
+                                Log.d("generateLegalMovesForCheck", "Checking king's safety at position: ($kingX, $kingY)")
+                                if (!isPositionAttacked(tempBoard, kingX, kingY, !isWhiteToMove)) {
+                                    legalMoves.add(move)
+                                } else {
+                                    Log.d("generateLegalMovesForCheck", "King is in check after move: $move")
+                                }
                             }
                         }
                     }
@@ -331,37 +376,67 @@ class ChessMainLoop {
         return legalMoves
     }
 
+    fun isCheckmate(board: Array<Array<Piece>>, isWhiteToMove: Boolean): Boolean {
+        val kingPosition = findKing(board, isWhiteToMove)
+        if (kingPosition != null) {
+            val (kingX, kingY) = kingPosition
+            if (isPositionAttacked(board, kingX, kingY, !isWhiteToMove)) {
+                val legalMoves = generateLegalMovesForCheck(board, isWhiteToMove)
+                if (legalMoves.isEmpty()) {
+                    return true
+                }
+            }
+        }
+        return false
+    }
+
+
+    fun Array<Array<Piece>>.deepCopy(): Array<Array<Piece>> {
+        return Array(this.size) { i ->
+            Array(this[i].size) { j ->
+                this[i][j]
+            }
+        }
+    }
+
 
     fun isMoveLegal(move: Move, legalMoves: List<Move>): Boolean {
         return move in legalMoves
     }
 
-    fun makeMove(board: Array<Array<Piece>>, move: Move, isWhiteToMove: Boolean): Boolean {
+    fun makeMove(board: Array<Array<Piece>>, move: Move, isWhiteToMove: Boolean, checkKingSafety: Boolean = true): Boolean {
         val startX = move.startX
         val startY = move.startY
-        val legalMoves = generateLegalMoves(board, isWhiteToMove, startX, startY)
 
-        Log.d("makeMove", "Legal moves: $legalMoves")
+        val legalMoves = generateLegalMovesForCheck(board, isWhiteToMove)
+        Log.d("makeMove", "Legal moves for all pieces: $legalMoves")
 
         if (isMoveLegal(move, legalMoves)) {
             val endX = move.endX
             val endY = move.endY
-
             // Move the piece
             board[endY][endX] = board[startY][startX]
             board[startY][startX] = Piece.EMPTY
-
-            // TODO: Castling, En passant, Pawn promotion, King in check
-
+            // TODO: Castling, En passant, Pawn promotion
             return true // Move was successful
         }
+
         Log.d("makeMove", "Move is illegal: $move, Legal moves: $legalMoves")
         return false // Move was not legal
     }
 
 
     fun makeMoveOnCurrentBoard(move: Move, isWhiteToMove: Boolean): Boolean {
-        return makeMove(chessboard, move, isWhiteToMove)
+        val moveSuccessful = makeMove(chessboard, move, isWhiteToMove)
+        if (moveSuccessful) {
+            if (isCheckmate(chessboard, !isWhiteToMove)) {
+                Log.d("makeMoveOnCurrentBoard", "Checkmate! ${if (isWhiteToMove) "White" else "Black"} wins!")
+                // Add here to for any messages after the game is complete
+            }
+        }
+        return moveSuccessful
     }
+
+
 }
 
