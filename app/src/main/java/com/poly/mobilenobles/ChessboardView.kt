@@ -283,6 +283,20 @@ class ChessboardView(context: Context, attrs: AttributeSet?, private val chessMa
             canvas.drawText(yourTurn, x, y, textPaint)
         }
 
+
+        val left = 0*squareSize.toFloat()+xOffset
+        val bottomtop = 4*squareSize.toFloat()
+
+        if (chessMainLoop.isCheckmate(chessboard, chessMainLoop.isWhiteToMove)) {
+            val bitmap = BitmapFactory.decodeResource(resources, R.drawable.gameoverwhite)
+            canvas.drawBitmap(bitmap, left, bottomtop, null)
+        } else if(chessMainLoop.isCheckmate(chessboard, !chessMainLoop.isWhiteToMove)) {
+            val bitmap = BitmapFactory.decodeResource(resources, R.drawable.gameoverblack)
+            canvas.drawBitmap(bitmap, left, bottomtop, null)
+        }
+
+
+
         // Dragging pieces over the board
         if (draggingPiece != null) {
             val imageResId = getPieceImageResource(draggingPiece!!)
