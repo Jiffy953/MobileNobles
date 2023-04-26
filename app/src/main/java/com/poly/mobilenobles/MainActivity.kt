@@ -3,20 +3,22 @@ package com.poly.mobilenobles
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
+import android.view.Window
 import android.widget.Button
 import kotlin.system.exitProcess
 
-
-private const val TAG = "MainActivity"
 
 class MainActivity : AppCompatActivity() {
 
     private val chessMainLoop = ChessMainLoop()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        supportRequestWindowFeature(Window.FEATURE_NO_TITLE)
+
 
         setContentView(R.layout.activity_main)
 
+        // Buttons
         val button1 = findViewById<Button>(R.id.button)
         val button2 = findViewById<Button>(R.id.button2)
         val button5 = findViewById<Button>(R.id.button5)
@@ -54,16 +56,14 @@ class MainActivity : AppCompatActivity() {
             }
 
         }
-
+        // Close Game
         button1.setOnClickListener{
             exitProcess(0)
         }
 
+        // Start Game
         button5.setOnClickListener{
-        // Create the ChessboardView instance and pass the ChessMainLoop instance to it
         val chessboardView = ChessboardView(this, null, chessMainLoop)
-
-        // Set the created ChessboardView as the content view
         setContentView(chessboardView)
 
         }
