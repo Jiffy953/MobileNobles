@@ -6,6 +6,8 @@ class ChessMainLoop {
     val chessboard: Array<Array<Piece>> = initializeChessboard()
     var isWhiteToMove = true
 
+
+
     enum class Piece(val symbol: String) {
         EMPTY(" "),
         WHITE_PAWN("P"), WHITE_ROOK("R"), WHITE_KNIGHT("N"), WHITE_BISHOP("B"), WHITE_QUEEN("Q"), WHITE_KING(

@@ -282,6 +282,32 @@ class ChessboardView(context: Context, attrs: AttributeSet?, private val chessMa
 
             canvas.drawText(yourTurn, x, y, textPaint)
         }
+        if (chessMainLoop.isCheckmate(chessboard, chessMainLoop.isWhiteToMove)) {
+            val winnerText = if (chessMainLoop.isWhiteToMove) "Black Wins!" else "White Wins!"
+            val textPaint = Paint()
+            textPaint.color = Color.BLACK
+            textPaint.textSize = 150f
+            textPaint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+
+            val textWidth = textPaint.measureText(winnerText)
+            val textHeight = textPaint.descent() - textPaint.ascent()
+            val x = (screenWidth - textWidth) / 2
+            val y = screenHeight / 2 + textHeight / 2
+
+            canvas.drawText(winnerText, x, y, textPaint)
+        }
+
+
+
+        /*if (chessMainLoop.isCheckmate(chessboard, chessMainLoop.isWhiteToMove)) {
+            val bitmap = BitmapFactory.decodeResource(resources, R.drawable.gameoverwhite)
+            canvas.drawBitmap(bitmap, left, bottomtop, null)
+        } else if(chessMainLoop.isCheckmate(chessboard, !chessMainLoop.isWhiteToMove)) {
+            val bitmap = BitmapFactory.decodeResource(resources, R.drawable.gameoverblack)
+            canvas.drawBitmap(bitmap, left, bottomtop, null)
+        }
+*/
+
 
         // Dragging pieces over the board
         if (draggingPiece != null) {
